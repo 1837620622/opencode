@@ -224,7 +224,10 @@ export function Prompt(props: PromptProps) {
   const editorContextLabelState = createMemo(() => editor.labelState())
   const [auto, setAuto] = createSignal<AutocompleteRef>()
   const workspace = usePromptWorkspace(props.sessionID)
-  const move = usePromptMove({ projectID: project.project, sessionID: () => props.sessionID })
+  const move = usePromptMove({
+    projectID: () => (props.sessionID ? data.session.get(props.sessionID)?.projectID : undefined) ?? project.project(),
+    sessionID: () => props.sessionID,
+  })
   const [cursorVersion, setCursorVersion] = createSignal(0)
   const currentProviderLabel = createMemo(() => local.model.parsed().provider)
   const connected = useConnected()
