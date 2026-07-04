@@ -1058,37 +1058,7 @@ export type SessionContextOutput = {
                       | { readonly type: "file"; readonly uri: string; readonly mime: string; readonly name?: string }
                     >
                     readonly structured: { readonly [x: string]: JsonValue }
-                    readonly error:
-                      | {
-                          readonly type: "provider.rate-limit"
-                          readonly message: string
-                          readonly retryAfterMs?: number
-                        }
-                      | { readonly type: "provider.auth"; readonly message: string }
-                      | { readonly type: "provider.quota"; readonly message: string }
-                      | { readonly type: "provider.content-filter"; readonly message: string }
-                      | { readonly type: "provider.transport"; readonly message: string }
-                      | { readonly type: "provider.internal"; readonly message: string }
-                      | { readonly type: "provider.invalid-output"; readonly message: string }
-                      | { readonly type: "provider.invalid-request"; readonly message: string }
-                      | { readonly type: "provider.no-route"; readonly message: string }
-                      | { readonly type: "provider.unknown"; readonly message: string }
-                      | {
-                          readonly type: "permission.rejected"
-                          readonly message: string
-                          readonly permission: string
-                          readonly resources: ReadonlyArray<string>
-                        }
-                      | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-                      | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-                      | { readonly type: "tool.execution"; readonly message: string }
-                      | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-                      | {
-                          readonly type: "aborted"
-                          readonly message: string
-                          readonly reason?: "user" | "shutdown" | "timeout"
-                        }
-                      | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+                    readonly error: { readonly type: string; readonly message: string }
                     readonly result?: JsonValue
                   }
               readonly time: {
@@ -1108,55 +1078,11 @@ export type SessionContextOutput = {
           readonly reasoning: number
           readonly cache: { readonly read: number; readonly write: number }
         }
-        readonly error?:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+        readonly error?: { readonly type: string; readonly message: string }
         readonly retry?: {
           readonly attempt: number
           readonly at: number
-          readonly error:
-            | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-            | { readonly type: "provider.auth"; readonly message: string }
-            | { readonly type: "provider.quota"; readonly message: string }
-            | { readonly type: "provider.content-filter"; readonly message: string }
-            | { readonly type: "provider.transport"; readonly message: string }
-            | { readonly type: "provider.internal"; readonly message: string }
-            | { readonly type: "provider.invalid-output"; readonly message: string }
-            | { readonly type: "provider.invalid-request"; readonly message: string }
-            | { readonly type: "provider.no-route"; readonly message: string }
-            | { readonly type: "provider.unknown"; readonly message: string }
-            | {
-                readonly type: "permission.rejected"
-                readonly message: string
-                readonly permission: string
-                readonly resources: ReadonlyArray<string>
-              }
-            | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-            | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-            | { readonly type: "tool.execution"; readonly message: string }
-            | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-            | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-            | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+          readonly error: { readonly type: string; readonly message: string }
         }
       }
     | {
@@ -1315,33 +1241,7 @@ export type SessionLogOutput =
           readonly location?: { readonly directory: string; readonly workspaceID?: string }
           readonly data: {
             readonly sessionID: string
-            readonly error:
-              | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-              | { readonly type: "provider.auth"; readonly message: string }
-              | { readonly type: "provider.quota"; readonly message: string }
-              | { readonly type: "provider.content-filter"; readonly message: string }
-              | { readonly type: "provider.transport"; readonly message: string }
-              | { readonly type: "provider.internal"; readonly message: string }
-              | { readonly type: "provider.invalid-output"; readonly message: string }
-              | { readonly type: "provider.invalid-request"; readonly message: string }
-              | { readonly type: "provider.no-route"; readonly message: string }
-              | { readonly type: "provider.unknown"; readonly message: string }
-              | {
-                  readonly type: "permission.rejected"
-                  readonly message: string
-                  readonly permission: string
-                  readonly resources: ReadonlyArray<string>
-                }
-              | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-              | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-              | { readonly type: "tool.execution"; readonly message: string }
-              | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-              | {
-                  readonly type: "aborted"
-                  readonly message: string
-                  readonly reason?: "user" | "shutdown" | "timeout"
-                }
-              | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+            readonly error: { readonly type: string; readonly message: string }
           }
         }
       | {
@@ -1484,33 +1384,7 @@ export type SessionLogOutput =
           readonly data: {
             readonly sessionID: string
             readonly assistantMessageID: string
-            readonly error:
-              | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-              | { readonly type: "provider.auth"; readonly message: string }
-              | { readonly type: "provider.quota"; readonly message: string }
-              | { readonly type: "provider.content-filter"; readonly message: string }
-              | { readonly type: "provider.transport"; readonly message: string }
-              | { readonly type: "provider.internal"; readonly message: string }
-              | { readonly type: "provider.invalid-output"; readonly message: string }
-              | { readonly type: "provider.invalid-request"; readonly message: string }
-              | { readonly type: "provider.no-route"; readonly message: string }
-              | { readonly type: "provider.unknown"; readonly message: string }
-              | {
-                  readonly type: "permission.rejected"
-                  readonly message: string
-                  readonly permission: string
-                  readonly resources: ReadonlyArray<string>
-                }
-              | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-              | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-              | { readonly type: "tool.execution"; readonly message: string }
-              | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-              | {
-                  readonly type: "aborted"
-                  readonly message: string
-                  readonly reason?: "user" | "shutdown" | "timeout"
-                }
-              | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+            readonly error: { readonly type: string; readonly message: string }
           }
         }
       | {
@@ -1653,33 +1527,7 @@ export type SessionLogOutput =
             readonly sessionID: string
             readonly assistantMessageID: string
             readonly callID: string
-            readonly error:
-              | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-              | { readonly type: "provider.auth"; readonly message: string }
-              | { readonly type: "provider.quota"; readonly message: string }
-              | { readonly type: "provider.content-filter"; readonly message: string }
-              | { readonly type: "provider.transport"; readonly message: string }
-              | { readonly type: "provider.internal"; readonly message: string }
-              | { readonly type: "provider.invalid-output"; readonly message: string }
-              | { readonly type: "provider.invalid-request"; readonly message: string }
-              | { readonly type: "provider.no-route"; readonly message: string }
-              | { readonly type: "provider.unknown"; readonly message: string }
-              | {
-                  readonly type: "permission.rejected"
-                  readonly message: string
-                  readonly permission: string
-                  readonly resources: ReadonlyArray<string>
-                }
-              | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-              | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-              | { readonly type: "tool.execution"; readonly message: string }
-              | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-              | {
-                  readonly type: "aborted"
-                  readonly message: string
-                  readonly reason?: "user" | "shutdown" | "timeout"
-                }
-              | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+            readonly error: { readonly type: string; readonly message: string }
             readonly result?: unknown
             readonly executed: boolean
             readonly resultState?: { readonly [x: string]: unknown }
@@ -1697,33 +1545,7 @@ export type SessionLogOutput =
             readonly assistantMessageID: string
             readonly attempt: number
             readonly at: number
-            readonly error:
-              | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-              | { readonly type: "provider.auth"; readonly message: string }
-              | { readonly type: "provider.quota"; readonly message: string }
-              | { readonly type: "provider.content-filter"; readonly message: string }
-              | { readonly type: "provider.transport"; readonly message: string }
-              | { readonly type: "provider.internal"; readonly message: string }
-              | { readonly type: "provider.invalid-output"; readonly message: string }
-              | { readonly type: "provider.invalid-request"; readonly message: string }
-              | { readonly type: "provider.no-route"; readonly message: string }
-              | { readonly type: "provider.unknown"; readonly message: string }
-              | {
-                  readonly type: "permission.rejected"
-                  readonly message: string
-                  readonly permission: string
-                  readonly resources: ReadonlyArray<string>
-                }
-              | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-              | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-              | { readonly type: "tool.execution"; readonly message: string }
-              | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-              | {
-                  readonly type: "aborted"
-                  readonly message: string
-                  readonly reason?: "user" | "shutdown" | "timeout"
-                }
-              | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+            readonly error: { readonly type: string; readonly message: string }
           }
         }
       | {
@@ -1952,37 +1774,7 @@ export type SessionMessageOutput = {
                       | { readonly type: "file"; readonly uri: string; readonly mime: string; readonly name?: string }
                     >
                     readonly structured: { readonly [x: string]: JsonValue }
-                    readonly error:
-                      | {
-                          readonly type: "provider.rate-limit"
-                          readonly message: string
-                          readonly retryAfterMs?: number
-                        }
-                      | { readonly type: "provider.auth"; readonly message: string }
-                      | { readonly type: "provider.quota"; readonly message: string }
-                      | { readonly type: "provider.content-filter"; readonly message: string }
-                      | { readonly type: "provider.transport"; readonly message: string }
-                      | { readonly type: "provider.internal"; readonly message: string }
-                      | { readonly type: "provider.invalid-output"; readonly message: string }
-                      | { readonly type: "provider.invalid-request"; readonly message: string }
-                      | { readonly type: "provider.no-route"; readonly message: string }
-                      | { readonly type: "provider.unknown"; readonly message: string }
-                      | {
-                          readonly type: "permission.rejected"
-                          readonly message: string
-                          readonly permission: string
-                          readonly resources: ReadonlyArray<string>
-                        }
-                      | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-                      | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-                      | { readonly type: "tool.execution"; readonly message: string }
-                      | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-                      | {
-                          readonly type: "aborted"
-                          readonly message: string
-                          readonly reason?: "user" | "shutdown" | "timeout"
-                        }
-                      | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+                    readonly error: { readonly type: string; readonly message: string }
                     readonly result?: JsonValue
                   }
               readonly time: {
@@ -2002,55 +1794,11 @@ export type SessionMessageOutput = {
           readonly reasoning: number
           readonly cache: { readonly read: number; readonly write: number }
         }
-        readonly error?:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+        readonly error?: { readonly type: string; readonly message: string }
         readonly retry?: {
           readonly attempt: number
           readonly at: number
-          readonly error:
-            | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-            | { readonly type: "provider.auth"; readonly message: string }
-            | { readonly type: "provider.quota"; readonly message: string }
-            | { readonly type: "provider.content-filter"; readonly message: string }
-            | { readonly type: "provider.transport"; readonly message: string }
-            | { readonly type: "provider.internal"; readonly message: string }
-            | { readonly type: "provider.invalid-output"; readonly message: string }
-            | { readonly type: "provider.invalid-request"; readonly message: string }
-            | { readonly type: "provider.no-route"; readonly message: string }
-            | { readonly type: "provider.unknown"; readonly message: string }
-            | {
-                readonly type: "permission.rejected"
-                readonly message: string
-                readonly permission: string
-                readonly resources: ReadonlyArray<string>
-              }
-            | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-            | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-            | { readonly type: "tool.execution"; readonly message: string }
-            | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-            | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-            | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+          readonly error: { readonly type: string; readonly message: string }
         }
       }
     | {
@@ -2228,37 +1976,7 @@ export type MessageListOutput = {
                       | { readonly type: "file"; readonly uri: string; readonly mime: string; readonly name?: string }
                     >
                     readonly structured: { readonly [x: string]: JsonValue }
-                    readonly error:
-                      | {
-                          readonly type: "provider.rate-limit"
-                          readonly message: string
-                          readonly retryAfterMs?: number
-                        }
-                      | { readonly type: "provider.auth"; readonly message: string }
-                      | { readonly type: "provider.quota"; readonly message: string }
-                      | { readonly type: "provider.content-filter"; readonly message: string }
-                      | { readonly type: "provider.transport"; readonly message: string }
-                      | { readonly type: "provider.internal"; readonly message: string }
-                      | { readonly type: "provider.invalid-output"; readonly message: string }
-                      | { readonly type: "provider.invalid-request"; readonly message: string }
-                      | { readonly type: "provider.no-route"; readonly message: string }
-                      | { readonly type: "provider.unknown"; readonly message: string }
-                      | {
-                          readonly type: "permission.rejected"
-                          readonly message: string
-                          readonly permission: string
-                          readonly resources: ReadonlyArray<string>
-                        }
-                      | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-                      | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-                      | { readonly type: "tool.execution"; readonly message: string }
-                      | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-                      | {
-                          readonly type: "aborted"
-                          readonly message: string
-                          readonly reason?: "user" | "shutdown" | "timeout"
-                        }
-                      | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+                    readonly error: { readonly type: string; readonly message: string }
                     readonly result?: JsonValue
                   }
               readonly time: {
@@ -2278,55 +1996,11 @@ export type MessageListOutput = {
           readonly reasoning: number
           readonly cache: { readonly read: number; readonly write: number }
         }
-        readonly error?:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+        readonly error?: { readonly type: string; readonly message: string }
         readonly retry?: {
           readonly attempt: number
           readonly at: number
-          readonly error:
-            | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-            | { readonly type: "provider.auth"; readonly message: string }
-            | { readonly type: "provider.quota"; readonly message: string }
-            | { readonly type: "provider.content-filter"; readonly message: string }
-            | { readonly type: "provider.transport"; readonly message: string }
-            | { readonly type: "provider.internal"; readonly message: string }
-            | { readonly type: "provider.invalid-output"; readonly message: string }
-            | { readonly type: "provider.invalid-request"; readonly message: string }
-            | { readonly type: "provider.no-route"; readonly message: string }
-            | { readonly type: "provider.unknown"; readonly message: string }
-            | {
-                readonly type: "permission.rejected"
-                readonly message: string
-                readonly permission: string
-                readonly resources: ReadonlyArray<string>
-              }
-            | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-            | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-            | { readonly type: "tool.execution"; readonly message: string }
-            | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-            | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-            | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+          readonly error: { readonly type: string; readonly message: string }
         }
       }
     | {
@@ -4861,32 +4535,7 @@ export type EventSubscribeOutput =
       readonly type: "session.execution.failed"
       readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
       readonly location?: { readonly directory: string; readonly workspaceID?: string }
-      readonly data: {
-        readonly sessionID: string
-        readonly error:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
-      }
+      readonly data: { readonly sessionID: string; readonly error: { readonly type: string; readonly message: string } }
     }
   | {
       readonly id: string
@@ -5028,29 +4677,7 @@ export type EventSubscribeOutput =
       readonly data: {
         readonly sessionID: string
         readonly assistantMessageID: string
-        readonly error:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+        readonly error: { readonly type: string; readonly message: string }
       }
     }
   | {
@@ -5222,29 +4849,7 @@ export type EventSubscribeOutput =
         readonly sessionID: string
         readonly assistantMessageID: string
         readonly callID: string
-        readonly error:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+        readonly error: { readonly type: string; readonly message: string }
         readonly result?: unknown
         readonly executed: boolean
         readonly resultState?: { readonly [x: string]: unknown }
@@ -5262,29 +4867,7 @@ export type EventSubscribeOutput =
         readonly assistantMessageID: string
         readonly attempt: number
         readonly at: number
-        readonly error:
-          | { readonly type: "provider.rate-limit"; readonly message: string; readonly retryAfterMs?: number }
-          | { readonly type: "provider.auth"; readonly message: string }
-          | { readonly type: "provider.quota"; readonly message: string }
-          | { readonly type: "provider.content-filter"; readonly message: string }
-          | { readonly type: "provider.transport"; readonly message: string }
-          | { readonly type: "provider.internal"; readonly message: string }
-          | { readonly type: "provider.invalid-output"; readonly message: string }
-          | { readonly type: "provider.invalid-request"; readonly message: string }
-          | { readonly type: "provider.no-route"; readonly message: string }
-          | { readonly type: "provider.unknown"; readonly message: string }
-          | {
-              readonly type: "permission.rejected"
-              readonly message: string
-              readonly permission: string
-              readonly resources: ReadonlyArray<string>
-            }
-          | { readonly type: "tool.unknown"; readonly message: string; readonly name: string }
-          | { readonly type: "tool.stale"; readonly message: string; readonly name?: string }
-          | { readonly type: "tool.execution"; readonly message: string }
-          | { readonly type: "tool.result-missing"; readonly message: string; readonly callID?: string }
-          | { readonly type: "aborted"; readonly message: string; readonly reason?: "user" | "shutdown" | "timeout" }
-          | { readonly type: "unknown"; readonly message: string; readonly agent?: string }
+        readonly error: { readonly type: string; readonly message: string }
       }
     }
   | {

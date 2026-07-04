@@ -64,13 +64,13 @@ const registryLayer = Layer.effect(
             value: advertised ? `Stale tool call: ${input.call.name}` : `Unknown tool: ${input.call.name}`,
           },
           error: advertised
-            ? ({ type: "tool.stale", message: `Stale tool call: ${input.call.name}`, name: input.call.name } as const)
-            : ({ type: "tool.unknown", message: `Unknown tool: ${input.call.name}`, name: input.call.name } as const),
+            ? ({ type: "tool.stale", message: `Stale tool call: ${input.call.name}` } as const)
+            : ({ type: "tool.unknown", message: `Unknown tool: ${input.call.name}` } as const),
         }
       if (advertised && registration.identity !== advertised)
         return {
           result: { type: "error" as const, value: `Stale tool call: ${input.call.name}` },
-          error: { type: "tool.stale" as const, message: `Stale tool call: ${input.call.name}`, name: input.call.name },
+          error: { type: "tool.stale" as const, message: `Stale tool call: ${input.call.name}` },
         }
       // Hooks fire only for hosted/local tools; provider-executed calls never reach settleWith.
       const beforeEvent: ToolHooks.BeforeEvent = {
@@ -180,7 +180,7 @@ const registryLayer = Layer.effect(
             if (registration) return settleWith(input, registration.identity)
             return Effect.succeed({
               result: { type: "error", value: `Unknown tool: ${input.call.name}` },
-              error: { type: "tool.unknown", message: `Unknown tool: ${input.call.name}`, name: input.call.name },
+              error: { type: "tool.unknown", message: `Unknown tool: ${input.call.name}` },
             })
           },
         }
