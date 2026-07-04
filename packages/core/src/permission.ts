@@ -130,19 +130,13 @@ const layer = Layer.effect(
     const sessions = yield* SessionStore.Service
     const saved = yield* PermissionSaved.Service
     const pending = new Map<ID, Pending>()
+    const rejected = (request: Request) =>
+      new RejectedError({ permission: request.action, resources: [...request.resources] })
 
     yield* Effect.addFinalizer(() =>
-      Effect.forEach(
-        pending.values(),
-        (item) =>
-          Deferred.fail(
-            item.deferred,
-            new RejectedError({ permission: item.request.action, resources: [...item.request.resources] }),
-          ),
-        {
-          discard: true,
-        },
-      ).pipe(
+      Effect.forEach(pending.values(), (item) => Deferred.fail(item.deferred, rejected(item.request)), {
+        discard: true,
+      }).pipe(
         Effect.ensuring(
           Effect.sync(() => {
             pending.clear()
@@ -253,12 +247,7 @@ const layer = Layer.effect(
           if (input.reply === "reject") {
             yield* Deferred.fail(
               existing.deferred,
-              input.message
-                ? new CorrectedError({ feedback: input.message })
-                : new RejectedError({
-                    permission: existing.request.action,
-                    resources: [...existing.request.resources],
-                  }),
+              input.message ? new CorrectedError({ feedback: input.message }) : rejected(existing.request),
             )
             pending.delete(input.requestID)
             for (const [id, item] of pending) {
@@ -268,10 +257,7 @@ const layer = Layer.effect(
                 requestID: item.request.id,
                 reply: "reject",
               })
-              yield* Deferred.fail(
-                item.deferred,
-                new RejectedError({ permission: item.request.action, resources: [...item.request.resources] }),
-              )
+              yield* Deferred.fail(item.deferred, rejected(item.request))
               pending.delete(id)
             }
             return
