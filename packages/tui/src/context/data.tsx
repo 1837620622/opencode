@@ -51,7 +51,7 @@ type Data = {
     // session ID in that family, including the key itself once its info arrives.
     family: Record<string, string[]>
     status: Record<string, DataSessionStatus>
-    compaction: Record<string, string>
+    compaction: Partial<Record<string, string>>
     message: Record<string, SessionMessage[]>
     permission: Record<string, PermissionV2Request[]>
     question: Record<string, QuestionV2Request[]>
@@ -518,14 +518,17 @@ export const { use: useData, provider: DataProvider } = createSimpleContext({
             }
           })
           break
-        case "session.retried":
         case "session.compaction.started":
           setSessionStatus(event.data.sessionID, "running")
           setStore("session", "compaction", event.data.sessionID, "")
           break
+        case "session.retried":
+          setSessionStatus(event.data.sessionID, "running")
+          break
         case "session.execution.settled":
           setSessionStatus(event.data.sessionID, "idle")
-          setStore("session", "compaction", event.data.sessionID, undefined!)
+          if (store.session.compaction[event.data.sessionID] !== undefined)
+            setStore("session", "compaction", event.data.sessionID, undefined)
           break
         case "session.revert.staged":
           if (store.session.info[event.data.sessionID])
@@ -540,7 +543,7 @@ export const { use: useData, provider: DataProvider } = createSimpleContext({
           setStore("session", "compaction", event.data.sessionID, (text) => (text ?? "") + event.data.text)
           break
         case "session.compaction.ended":
-          setStore("session", "compaction", event.data.sessionID, undefined!)
+          setStore("session", "compaction", event.data.sessionID, undefined)
           message.update(event.data.sessionID, (draft, index) => {
             message.append(draft, index, {
               id: messageIDFromEvent(event.id),
