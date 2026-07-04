@@ -247,9 +247,9 @@ export const Plugin = {
                 }
               }
 
-              const result = yield* runtime.job.block({ id: job.id, sessionID: context.sessionID }).pipe(
-                Effect.onInterrupt(() => runtime.job.cancel(job.id).pipe(Effect.ignore)),
-              )
+              const result = yield* runtime.job
+                .block({ id: job.id, sessionID: context.sessionID })
+                .pipe(Effect.onInterrupt(() => runtime.job.cancel(job.id).pipe(Effect.ignore)))
               if (result?.type === "backgrounded") {
                 yield* notifyWhenDone(context.sessionID, context.toolCallID, input.command)
                 return {
@@ -260,14 +260,19 @@ export const Plugin = {
                   ...(warnings.length ? { warnings } : {}),
                 }
               }
-              if (result?.info.status === "error") return yield* Effect.fail(new Error(result.info.error ?? "Command failed"))
+              if (result?.info.status === "error")
+                return yield* Effect.fail(new Error(result.info.error ?? "Command failed"))
               if (result?.info.status === "cancelled") return yield* Effect.fail(new Error("Command cancelled"))
 
               return {
                 ...(yield* settleShell()),
                 ...(warnings.length ? { warnings } : {}),
               }
-            }).pipe(Effect.mapError(() => new ToolFailure({ message: `Unable to execute command: ${input.command}` }))),
+            }).pipe(
+              Effect.mapError(
+                (error) => new ToolFailure({ message: `Unable to execute command: ${input.command}`, error }),
+              ),
+            ),
         }),
       })
       .pipe(Effect.orDie)

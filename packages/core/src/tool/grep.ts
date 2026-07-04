@@ -131,7 +131,7 @@ export const Plugin = {
               Effect.mapError((error) =>
                 error instanceof ToolFailure
                   ? error
-                  : new ToolFailure({ message: `Unable to grep for ${input.pattern}` }),
+                  : new ToolFailure({ message: `Unable to grep for ${input.pattern}`, error }),
               ),
             ),
         }),
