@@ -600,7 +600,6 @@ export type SessionPromptInput = {
 
 export type SessionPromptOutput = {
   readonly data: {
-    readonly type: "prompt"
     readonly admittedSeq: number
     readonly id: string
     readonly sessionID: string
@@ -801,7 +800,6 @@ export type SessionCommandInput = {
 
 export type SessionCommandOutput = {
   readonly data: {
-    readonly type: "prompt"
     readonly admittedSeq: number
     readonly id: string
     readonly sessionID: string
