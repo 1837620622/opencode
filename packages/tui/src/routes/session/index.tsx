@@ -183,7 +183,10 @@ export function Session() {
   })
   const forms = createMemo(() => {
     const sessionIDs = session()?.parentID ? [route.sessionID] : [route.sessionID, ...descendantSessionIDs()]
-    return sessionIDs.flatMap((sessionID) => data.session.form.list(sessionID) ?? [])
+    return [
+      ...sessionIDs.flatMap((sessionID) => data.session.form.list(sessionID) ?? []),
+      ...(data.session.form.list("global", location()) ?? []),
+    ]
   })
   const [composer, setComposer] = createStore({
     open: false,
@@ -260,7 +263,11 @@ export function Session() {
         return
       }
       if (!info.parentID) await data.session.refreshChildren(sessionID)
-      await Promise.all([data.session.permission.refresh(sessionID), data.session.form.refresh(sessionID)])
+      await Promise.all([
+        data.session.permission.refresh(sessionID),
+        data.session.form.refresh(sessionID),
+        data.session.form.refresh("global", info.location),
+      ])
 
       project.workspace.set(info.location.workspaceID)
       editor.reconnect(info.location.directory)
