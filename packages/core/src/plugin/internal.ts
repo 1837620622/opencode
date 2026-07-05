@@ -16,6 +16,7 @@ import { ConfigReferencePlugin } from "../config/plugin/reference"
 import { ConfigSkillPlugin } from "../config/plugin/skill"
 import { EventV2 } from "../event"
 import { FileMutation } from "../file-mutation"
+import { Form } from "../form"
 import { FileSystem } from "../filesystem"
 import { FSUtil } from "../fs-util"
 import { Global } from "../global"
@@ -28,7 +29,6 @@ import { Npm } from "../npm"
 import { PluginV2 } from "../plugin"
 import { PluginRuntime } from "../plugin/runtime"
 import { PermissionV2 } from "../permission"
-import { QuestionV2 } from "../question"
 import { Reference } from "../reference"
 import { Ripgrep } from "../ripgrep"
 import { SessionInstructions } from "../session/instructions"
@@ -69,6 +69,7 @@ export type Requirements =
   | EventV2.Service
   | FileMutation.Service
   | FileSystem.Service
+  | Form.Service
   | FSUtil.Service
   | Global.Service
   | HttpClient.HttpClient
@@ -80,7 +81,6 @@ export type Requirements =
   | Npm.Service
   | PermissionV2.Service
   | PluginRuntime.Service
-  | QuestionV2.Service
   | ReadToolFileSystem.Service
   | Reference.Service
   | Ripgrep.Service
@@ -116,13 +116,13 @@ const layer = Layer.effectDiscard(
       Context.make(EventV2.Service, yield* EventV2.Service),
       Context.make(FSUtil.Service, yield* FSUtil.Service),
       Context.make(FileSystem.Service, yield* FileSystem.Service),
+      Context.make(Form.Service, yield* Form.Service),
       Context.make(Global.Service, yield* Global.Service),
       Context.make(HttpClient.HttpClient, yield* HttpClient.HttpClient),
       Context.make(LocationMutation.Service, yield* LocationMutation.Service),
       Context.make(FileMutation.Service, yield* FileMutation.Service),
       Context.make(Image.Service, yield* Image.Service),
       Context.make(PermissionV2.Service, yield* PermissionV2.Service),
-      Context.make(QuestionV2.Service, yield* QuestionV2.Service),
       Context.make(ReadToolFileSystem.Service, yield* ReadToolFileSystem.Service),
       Context.make(SessionInstructions.Service, yield* SessionInstructions.Service),
       Context.make(SessionTodo.Service, yield* SessionTodo.Service),
@@ -192,10 +192,10 @@ export const node = makeLocationNode({
     EventV2.node,
     FSUtil.node,
     FileSystem.node,
+    Form.node,
     Global.node,
     httpClient,
     PermissionV2.node,
-    QuestionV2.node,
     ReadToolFileSystem.node,
     SessionInstructions.node,
     SessionTodo.node,
