@@ -50,9 +50,11 @@ export type Event =
   | EventSessionToolSuccess
   | EventSessionToolFailed
   | EventSessionRetryScheduled
+  | EventSessionCompactionAdmitted
   | EventSessionCompactionStarted
   | EventSessionCompactionDelta
   | EventSessionCompactionEnded
+  | EventSessionCompactionFailed
   | EventSessionRevertStaged
   | EventSessionRevertCleared
   | EventSessionRevertCommitted
@@ -1202,6 +1204,14 @@ export type GlobalEvent = {
       }
     | {
         id: string
+        type: "session.compaction.admitted"
+        properties: {
+          sessionID: string
+          inputID: string
+        }
+      }
+    | {
+        id: string
         type: "session.compaction.started"
         properties: {
           sessionID: string
@@ -1224,6 +1234,13 @@ export type GlobalEvent = {
           reason: "auto" | "manual"
           text: string
           recent: string
+        }
+      }
+    | {
+        id: string
+        type: "session.compaction.failed"
+        properties: {
+          sessionID: string
         }
       }
     | {
@@ -1765,8 +1782,10 @@ export type GlobalEvent = {
     | SyncEventSessionToolSuccess
     | SyncEventSessionToolFailed
     | SyncEventSessionRetryScheduled
+    | SyncEventSessionCompactionAdmitted
     | SyncEventSessionCompactionStarted
     | SyncEventSessionCompactionEnded
+    | SyncEventSessionCompactionFailed
     | SyncEventSessionRevertStaged
     | SyncEventSessionRevertCleared
     | SyncEventSessionRevertCommitted
@@ -2937,8 +2956,10 @@ export type SessionDurableEvent =
   | SessionToolSuccess
   | SessionToolFailed
   | SessionRetryScheduled
+  | SessionCompactionAdmitted
   | SessionCompactionStarted
   | SessionCompactionEnded
+  | SessionCompactionFailed
   | SessionRevertStaged
   | SessionRevertCleared
   | SessionRevertCommitted
@@ -3085,9 +3106,11 @@ export type V2Event =
   | SessionToolSuccess
   | SessionToolFailed
   | SessionRetryScheduled
+  | SessionCompactionAdmitted
   | SessionCompactionStarted
   | SessionCompactionDelta
   | SessionCompactionEnded
+  | SessionCompactionFailed
   | SessionRevertStaged
   | SessionRevertCleared
   | SessionRevertCommitted
@@ -4154,6 +4177,21 @@ export type SyncEventSessionRetryScheduled = {
   }
 }
 
+export type SyncEventSessionCompactionAdmitted = {
+  type: "sync"
+  id: string
+  syncEvent: {
+    type: "session.compaction.admitted.1"
+    id: string
+    seq: number
+    aggregateID: string
+    data: {
+      sessionID: string
+      inputID: string
+    }
+  }
+}
+
 export type SyncEventSessionCompactionStarted = {
   type: "sync"
   id: string
@@ -4182,6 +4220,20 @@ export type SyncEventSessionCompactionEnded = {
       reason: "auto" | "manual"
       text: string
       recent: string
+    }
+  }
+}
+
+export type SyncEventSessionCompactionFailed = {
+  type: "sync"
+  id: string
+  syncEvent: {
+    type: "session.compaction.failed.1"
+    id: string
+    seq: number
+    aggregateID: string
+    data: {
+      sessionID: string
     }
   }
 }
@@ -4347,6 +4399,7 @@ export type PromptInputFileAttachment = {
 }
 
 export type SessionInputAdmitted = {
+  type: "prompt"
   admittedSeq: number
   id: string
   sessionID: string
@@ -4354,6 +4407,15 @@ export type SessionInputAdmitted = {
   delivery: "steer" | "queue"
   timeCreated: number
   promotedSeq?: number
+}
+
+export type SessionInputCompaction = {
+  type: "compaction"
+  admittedSeq: number
+  id: string
+  sessionID: string
+  timeCreated: number
+  handledSeq?: number
 }
 
 export type SessionMessageAgentSelected = {
@@ -4572,6 +4634,7 @@ export type SessionMessageAssistant = {
 
 export type SessionMessageCompaction = {
   type: "compaction"
+  status: "queued" | "running" | "completed" | "failed"
   reason: "auto" | "manual"
   summary: string
   recent: string
@@ -5242,6 +5305,25 @@ export type SessionRetryScheduled = {
   }
 }
 
+export type SessionCompactionAdmitted = {
+  id: string
+  created: number
+  metadata?: {
+    [key: string]: unknown
+  }
+  type: "session.compaction.admitted"
+  durable: {
+    aggregateID: string
+    seq: number
+    version: number
+  }
+  location?: LocationRef
+  data: {
+    sessionID: string
+    inputID: string
+  }
+}
+
 export type SessionCompactionStarted = {
   id: string
   created: number
@@ -5279,6 +5361,24 @@ export type SessionCompactionEnded = {
     reason: "auto" | "manual"
     text: string
     recent: string
+  }
+}
+
+export type SessionCompactionFailed = {
+  id: string
+  created: number
+  metadata?: {
+    [key: string]: unknown
+  }
+  type: "session.compaction.failed"
+  durable: {
+    aggregateID: string
+    seq: number
+    version: number
+  }
+  location?: LocationRef
+  data: {
+    sessionID: string
   }
 }
 
@@ -7258,6 +7358,15 @@ export type EventSessionRetryScheduled = {
   }
 }
 
+export type EventSessionCompactionAdmitted = {
+  id: string
+  type: "session.compaction.admitted"
+  properties: {
+    sessionID: string
+    inputID: string
+  }
+}
+
 export type EventSessionCompactionStarted = {
   id: string
   type: "session.compaction.started"
@@ -7284,6 +7393,14 @@ export type EventSessionCompactionEnded = {
     reason: "auto" | "manual"
     text: string
     recent: string
+  }
+}
+
+export type EventSessionCompactionFailed = {
+  id: string
+  type: "session.compaction.failed"
+  properties: {
+    sessionID: string
   }
 }
 
@@ -8450,9 +8567,11 @@ export type V2EventV2 =
   | SessionToolSuccessV2
   | SessionToolFailedV2
   | SessionRetryScheduledV2
+  | SessionCompactionAdmittedV2
   | SessionCompactionStartedV2
   | SessionCompactionDeltaV2
   | SessionCompactionEndedV2
+  | SessionCompactionFailedV2
   | SessionRevertStagedV2
   | SessionRevertClearedV2
   | SessionRevertCommittedV2
@@ -8578,6 +8697,7 @@ export type SessionV2InfoV2 = {
 }
 
 export type SessionInputAdmittedV2 = {
+  type: "prompt"
   admittedSeq: number
   id: string
   sessionID: string
@@ -8585,6 +8705,15 @@ export type SessionInputAdmittedV2 = {
   delivery: "steer" | "queue"
   timeCreated: number
   promotedSeq?: number
+}
+
+export type SessionInputCompactionV2 = {
+  type: "compaction"
+  admittedSeq: number
+  id: string
+  sessionID: string
+  timeCreated: number
+  handledSeq?: number
 }
 
 export type SessionMessageAgentSelectedV2 = {
@@ -8725,6 +8854,7 @@ export type SessionMessageAssistantV2 = {
 
 export type SessionMessageCompactionV2 = {
   type: "compaction"
+  status: "queued" | "running" | "completed" | "failed"
   reason: "auto" | "manual"
   summary: string
   recent: string
@@ -9402,6 +9532,25 @@ export type SessionRetryScheduledV2 = {
   }
 }
 
+export type SessionCompactionAdmittedV2 = {
+  id: string
+  created: number
+  metadata?: {
+    [key: string]: unknown
+  }
+  type: "session.compaction.admitted"
+  durable: {
+    aggregateID: string
+    seq: number
+    version: number
+  }
+  location?: LocationRefV2
+  data: {
+    sessionID: string
+    inputID: string
+  }
+}
+
 export type SessionCompactionStartedV2 = {
   id: string
   created: number
@@ -9439,6 +9588,24 @@ export type SessionCompactionEndedV2 = {
     reason: "auto" | "manual"
     text: string
     recent: string
+  }
+}
+
+export type SessionCompactionFailedV2 = {
+  id: string
+  created: number
+  metadata?: {
+    [key: string]: unknown
+  }
+  type: "session.compaction.failed"
+  durable: {
+    aggregateID: string
+    seq: number
+    version: number
+  }
+  location?: LocationRefV2
+  data: {
+    sessionID: string
   }
 }
 
@@ -15371,7 +15538,9 @@ export type V2SessionShellResponses = {
 export type V2SessionShellResponse = V2SessionShellResponses[keyof V2SessionShellResponses]
 
 export type V2SessionCompactData = {
-  body?: never
+  body: {
+    id?: string | null
+  }
   path: {
     sessionID: string
   }
@@ -15393,26 +15562,20 @@ export type V2SessionCompactErrors = {
    */
   404: SessionNotFoundError
   /**
-   * SessionBusyError
+   * ConflictError
    */
-  409: SessionBusyError
-  /**
-   * UnknownError
-   */
-  500: UnknownErrorV2
-  /**
-   * ServiceUnavailableError
-   */
-  503: ServiceUnavailableErrorV2
+  409: ConflictErrorV2
 }
 
 export type V2SessionCompactError = V2SessionCompactErrors[keyof V2SessionCompactErrors]
 
 export type V2SessionCompactResponses = {
   /**
-   * <No Content>
+   * Success
    */
-  204: void
+  200: {
+    data: SessionInputCompactionV2
+  }
 }
 
 export type V2SessionCompactResponse = V2SessionCompactResponses[keyof V2SessionCompactResponses]

@@ -74,14 +74,6 @@ export type SkillNotFoundError = {
 export const isSkillNotFoundError = (value: unknown): value is SkillNotFoundError =>
   typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "SkillNotFoundError"
 
-export type SessionBusyError = {
-  readonly _tag: "SessionBusyError"
-  readonly sessionID: string
-  readonly message: string
-}
-export const isSessionBusyError = (value: unknown): value is SessionBusyError =>
-  typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "SessionBusyError"
-
 export type ServiceUnavailableError = {
   readonly _tag: "ServiceUnavailableError"
   readonly message: string
@@ -89,6 +81,14 @@ export type ServiceUnavailableError = {
 }
 export const isServiceUnavailableError = (value: unknown): value is ServiceUnavailableError =>
   typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "ServiceUnavailableError"
+
+export type SessionBusyError = {
+  readonly _tag: "SessionBusyError"
+  readonly sessionID: string
+  readonly message: string
+}
+export const isSessionBusyError = (value: unknown): value is SessionBusyError =>
+  typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "SessionBusyError"
 
 export type UnknownError = {
   readonly _tag: "UnknownError"
@@ -600,6 +600,7 @@ export type SessionPromptInput = {
 
 export type SessionPromptOutput = {
   readonly data: {
+    readonly type: "prompt"
     readonly admittedSeq: number
     readonly id: string
     readonly sessionID: string
@@ -800,6 +801,7 @@ export type SessionCommandInput = {
 
 export type SessionCommandOutput = {
   readonly data: {
+    readonly type: "prompt"
     readonly admittedSeq: number
     readonly id: string
     readonly sessionID: string
@@ -873,9 +875,21 @@ export type SessionShellInput = {
 
 export type SessionShellOutput = void
 
-export type SessionCompactInput = { readonly sessionID: { readonly sessionID: string }["sessionID"] }
+export type SessionCompactInput = {
+  readonly sessionID: { readonly sessionID: string }["sessionID"]
+  readonly id?: { readonly id?: string | undefined }["id"]
+}
 
-export type SessionCompactOutput = void
+export type SessionCompactOutput = {
+  readonly data: {
+    readonly type: "compaction"
+    readonly admittedSeq: number
+    readonly id: string
+    readonly sessionID: string
+    readonly timeCreated: number
+    readonly handledSeq?: number
+  }
+}["data"]
 
 export type SessionWaitInput = { readonly sessionID: { readonly sessionID: string }["sessionID"] }
 
@@ -1087,6 +1101,7 @@ export type SessionContextOutput = {
       }
     | {
         readonly type: "compaction"
+        readonly status: "queued" | "running" | "completed" | "failed"
         readonly reason: "auto" | "manual"
         readonly summary: string
         readonly recent: string
@@ -1559,6 +1574,15 @@ export type SessionLogOutput =
           readonly id: string
           readonly created: number
           readonly metadata?: { readonly [x: string]: unknown }
+          readonly type: "session.compaction.admitted"
+          readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
+          readonly location?: { readonly directory: string; readonly workspaceID?: string }
+          readonly data: { readonly sessionID: string; readonly inputID: string }
+        }
+      | {
+          readonly id: string
+          readonly created: number
+          readonly metadata?: { readonly [x: string]: unknown }
           readonly type: "session.compaction.started"
           readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
           readonly location?: { readonly directory: string; readonly workspaceID?: string }
@@ -1577,6 +1601,15 @@ export type SessionLogOutput =
             readonly text: string
             readonly recent: string
           }
+        }
+      | {
+          readonly id: string
+          readonly created: number
+          readonly metadata?: { readonly [x: string]: unknown }
+          readonly type: "session.compaction.failed"
+          readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
+          readonly location?: { readonly directory: string; readonly workspaceID?: string }
+          readonly data: { readonly sessionID: string }
         }
       | {
           readonly id: string
@@ -1810,6 +1843,7 @@ export type SessionMessageOutput = {
       }
     | {
         readonly type: "compaction"
+        readonly status: "queued" | "running" | "completed" | "failed"
         readonly reason: "auto" | "manual"
         readonly summary: string
         readonly recent: string
@@ -2012,6 +2046,7 @@ export type MessageListOutput = {
       }
     | {
         readonly type: "compaction"
+        readonly status: "queued" | "running" | "completed" | "failed"
         readonly reason: "auto" | "manual"
         readonly summary: string
         readonly recent: string
@@ -4898,6 +4933,15 @@ export type EventSubscribeOutput =
       readonly id: string
       readonly created: number
       readonly metadata?: { readonly [x: string]: unknown }
+      readonly type: "session.compaction.admitted"
+      readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
+      readonly location?: { readonly directory: string; readonly workspaceID?: string }
+      readonly data: { readonly sessionID: string; readonly inputID: string }
+    }
+  | {
+      readonly id: string
+      readonly created: number
+      readonly metadata?: { readonly [x: string]: unknown }
       readonly type: "session.compaction.started"
       readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
       readonly location?: { readonly directory: string; readonly workspaceID?: string }
@@ -4924,6 +4968,15 @@ export type EventSubscribeOutput =
         readonly text: string
         readonly recent: string
       }
+    }
+  | {
+      readonly id: string
+      readonly created: number
+      readonly metadata?: { readonly [x: string]: unknown }
+      readonly type: "session.compaction.failed"
+      readonly durable: { readonly aggregateID: string; readonly seq: number; readonly version: number }
+      readonly location?: { readonly directory: string; readonly workspaceID?: string }
+      readonly data: { readonly sessionID: string }
     }
   | {
       readonly id: string

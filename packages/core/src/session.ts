@@ -33,7 +33,6 @@ import { MessageDecodeError } from "./session/error"
 import { SessionEvent } from "./session/event"
 import { SessionInput } from "./session/input"
 import { Snapshot } from "./snapshot"
-import { SessionCompaction } from "./session/compaction"
 import { SessionRevert } from "./session/revert"
 import { Revert } from "@opencode-ai/schema/revert"
 import { FSUtil } from "./fs-util"
@@ -94,6 +93,7 @@ type CreateInput = CreateBaseInput &
   ({ location: Location.Ref; parentID?: never } | { parentID: SessionSchema.ID; location?: never })
 
 type CompactInput = {
+  id?: SessionMessage.ID
   sessionID: SessionSchema.ID
 }
 
@@ -119,6 +119,13 @@ export class PromptConflictError extends Schema.TaggedErrorClass<PromptConflictE
   sessionID: SessionSchema.ID,
   messageID: SessionMessage.ID,
 }) {}
+export class CompactionConflictError extends Schema.TaggedErrorClass<CompactionConflictError>()(
+  "Session.CompactionConflictError",
+  {
+    sessionID: SessionSchema.ID,
+    inputID: SessionMessage.ID,
+  },
+) {}
 export class BusyError extends Schema.TaggedErrorClass<BusyError>()("Session.BusyError", {
   sessionID: SessionSchema.ID,
 }) {}
@@ -133,6 +140,7 @@ export type Error =
   | MessageDecodeError
   | OperationUnavailableError
   | PromptConflictError
+  | CompactionConflictError
   | BusyError
   | SkillNotFoundError
   | CommandV2.NotFoundError
@@ -220,7 +228,7 @@ export interface Interface {
   }) => Effect.Effect<void, NotFoundError | SkillNotFoundError>
   readonly compact: (
     input: CompactInput,
-  ) => Effect.Effect<void, NotFoundError | BusyError | MessageDecodeError | OperationUnavailableError>
+  ) => Effect.Effect<SessionInput.Compaction, NotFoundError | CompactionConflictError>
   readonly wait: (id: SessionSchema.ID) => Effect.Effect<void, NotFoundError>
   readonly active: Effect.Effect<ReadonlySet<SessionSchema.ID>>
   readonly background: (sessionID: SessionSchema.ID) => Effect.Effect<void, NotFoundError>
@@ -623,19 +631,20 @@ const layer = Layer.effect(
         })
       }),
       compact: Effect.fn("V2Session.compact")(function* (input) {
-        const session = yield* result.get(input.sessionID)
-        // TODO: admit manual compaction as durable pending work, like prompt input, instead of rejecting active sessions.
-        if ((yield* execution.active).has(input.sessionID)) return yield* new BusyError({ sessionID: input.sessionID })
-        const context = yield* store.context(input.sessionID)
-        const compacted = yield* Effect.gen(function* () {
-          const compaction = yield* SessionCompaction.Service
-          return yield* compaction.compactManual({ session, messages: context })
+        yield* result.get(input.sessionID)
+        const inputID = input.id ?? SessionMessage.ID.create()
+        const admitted = yield* SessionInput.admitCompaction(db, events, {
+          id: inputID,
+          sessionID: input.sessionID,
         }).pipe(
-          Effect.provide(locations.get(session.location)),
-          Effect.catch(() => Effect.succeed(false)),
+          Effect.catchDefect((defect) =>
+            defect instanceof SessionInput.LifecycleConflict
+              ? new CompactionConflictError({ sessionID: input.sessionID, inputID })
+              : Effect.die(defect),
+          ),
         )
-        if (!compacted) return yield* new OperationUnavailableError({ operation: "compact" })
-        return undefined
+        yield* execution.wake(input.sessionID)
+        return admitted
       }),
       wait: Effect.fn("V2Session.wait")(function* (sessionID) {
         yield* result.get(sessionID)

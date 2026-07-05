@@ -233,7 +233,9 @@ describe("SessionV2.prompt", () => {
       expect(message.prompt.files).toEqual([
         { uri: "data:image/png;base64,aGVsbG8=", name: "image.png", mime: "image/png" },
       ])
-      expect((yield* admitted(message.id))?.prompt.files).toEqual(message.prompt.files)
+      const stored = yield* admitted(message.id)
+      expect(stored?.type).toBe("prompt")
+      if (stored?.type === "prompt") expect(stored.prompt.files).toEqual(message.prompt.files)
     }),
   )
 

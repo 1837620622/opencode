@@ -77,7 +77,9 @@ export function createSessionRows(sessionID: Accessor<string>) {
           .list(sessionID())
           .flatMap((message) =>
             message.type === "user"
-              ? [{ id: message.id, created: message.time.created, queued: message.metadata?.queued === true }]
+              ? [{ id: message.id, created: message.time.created, state: message.metadata?.queued ? "queued" : "visible" }]
+              : message.type === "compaction"
+                ? [{ id: message.id, created: message.time.created, state: message.status }]
               : [],
           ),
       () => setRows(reconcile(reduce())),
@@ -88,9 +90,10 @@ export function createSessionRows(sessionID: Accessor<string>) {
     setRows(
       produce((draft) => {
         if (draft.some((row) => row.type === "message" && row.messageID === messageID)) return
-        const queued = isQueued(messageID)
-        const index = queued ? draft.length : queuedStart(draft)
-        if (!queued) completePrevious(draft, index)
+        const pending = isPending(messageID)
+        const message = data.session.message.get(sessionID(), messageID)
+        const index = message?.type === "compaction" && pending ? queuedStart(draft) : pending ? draft.length : queuedStart(draft)
+        if (!pending) completePrevious(draft, index)
         draft.splice(index, 0, { type: "message", messageID })
       }),
     )
@@ -145,13 +148,14 @@ export function createSessionRows(sessionID: Accessor<string>) {
     return { messageID, partID: `${kind}:${Math.max(0, ordinal)}` }
   }
 
-  const isQueued = (messageID: string) => {
+  const isPending = (messageID: string) => {
     const message = data.session.message.get(sessionID(), messageID)
-    return message?.type === "user" && message.metadata?.queued === true
+    if (message?.type === "user") return message.metadata?.queued === true
+    return message?.type === "compaction" && (message.status === "queued" || message.status === "running")
   }
 
   const queuedStart = (rows: SessionRow[]) => {
-    const index = rows.findIndex((row) => row.type === "message" && isQueued(row.messageID))
+    const index = rows.findIndex((row) => row.type === "message" && isPending(row.messageID))
     return index === -1 ? rows.length : index
   }
 
@@ -163,6 +167,7 @@ export function createSessionRows(sessionID: Accessor<string>) {
   }
   const subscriptions = [
     data.on("session.prompt.admitted", input),
+    data.on("session.compaction.admitted", input),
     data.on("session.context.updated", message),
     data.on("session.synthetic", (event) => {
       if (event.data.sessionID === sessionID() && event.data.description?.trim())
@@ -211,9 +216,13 @@ export function createSessionRows(sessionID: Accessor<string>) {
 }
 
 export function reduceSessionRows(messages: SessionMessage[]) {
-  return [...messages.filter((message) => !isQueuedMessage(message)), ...messages.filter(isQueuedMessage)].reduce<
-    SessionRow[]
-  >((rows, message) => {
+  const pendingCompactions = messages.filter(
+    (message) => message.type === "compaction" && (message.status === "queued" || message.status === "running"),
+  )
+  const queuedUsers = messages.filter(isQueuedMessage)
+  const pending = new Set([...pendingCompactions, ...queuedUsers].map((message) => message.id))
+  return [...messages.filter((message) => !pending.has(message.id)), ...pendingCompactions, ...queuedUsers].reduce<SessionRow[]>(
+    (rows, message) => {
     if (message.type !== "assistant") {
       if (message.type === "synthetic" && !message.description?.trim()) return rows
       if (!isQueuedMessage(message)) completePrevious(rows)
@@ -231,7 +240,9 @@ export function reduceSessionRows(messages: SessionMessage[]) {
       rows.push({ type: "assistant-footer", messageID: message.id })
     }
     return rows
-  }, [])
+    },
+    [],
+  )
 }
 
 export function resolvePart(message: SessionMessageAssistant, partID: string) {

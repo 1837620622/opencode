@@ -1,9 +1,9 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "96e9fe64-d810-4102-8f79-3317a88bb6d2",
+  "id": "afa00750-fad8-473a-b877-13ff35ea3411",
   "prevIds": [
-    "22e57fed-b9b8-4e94-a3b4-f94bece680a8"
+    "96e9fe64-d810-4102-8f79-3317a88bb6d2"
   ],
   "ddl": [
     {
@@ -1012,13 +1012,23 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
+      "name": "type",
+      "entityType": "columns",
+      "table": "session_input"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
       "name": "prompt",
       "entityType": "columns",
       "table": "session_input"
     },
     {
       "type": "text",
-      "notNull": true,
+      "notNull": false,
       "autoincrement": false,
       "default": null,
       "generated": null,
@@ -2067,6 +2077,10 @@
           "isExpression": false
         },
         {
+          "value": "type",
+          "isExpression": false
+        },
+        {
           "value": "delivery",
           "isExpression": false
         },
@@ -2078,7 +2092,21 @@
       "isUnique": false,
       "where": null,
       "origin": "manual",
-      "name": "session_input_session_pending_delivery_seq_idx",
+      "name": "session_input_session_pending_type_delivery_seq_idx",
+      "entityType": "indexes",
+      "table": "session_input"
+    },
+    {
+      "columns": [
+        {
+          "value": "session_id",
+          "isExpression": false
+        }
+      ],
+      "isUnique": true,
+      "where": "\"session_input\".\"type\" = 'compaction' and \"session_input\".\"promoted_seq\" is null",
+      "origin": "manual",
+      "name": "session_input_session_pending_compaction_idx",
       "entityType": "indexes",
       "table": "session_input"
     },

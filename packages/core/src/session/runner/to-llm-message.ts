@@ -161,6 +161,7 @@ function toLLMMessage(message: SessionMessage.Message, model: Model): Message[] 
     case "assistant":
       return assistant(message, model)
     case "compaction":
+      if (message.status !== "completed") return []
       return [
         Message.make({
           id: message.id,
